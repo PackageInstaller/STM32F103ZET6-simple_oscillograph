@@ -33,8 +33,9 @@ static void SRAM_GPIO_Config(void)
                          FSMC_A3_GPIO_CLK | FSMC_A4_GPIO_CLK | FSMC_A5_GPIO_CLK |
                          FSMC_A6_GPIO_CLK | FSMC_A7_GPIO_CLK | FSMC_A8_GPIO_CLK |
                          FSMC_A9_GPIO_CLK | FSMC_A10_GPIO_CLK| FSMC_A11_GPIO_CLK| 
-												 FSMC_A12_GPIO_CLK| FSMC_A13_GPIO_CLK|FSMC_A14_GPIO_CLK|
-												 FSMC_A15_GPIO_CLK|FSMC_A16_GPIO_CLK|FSMC_A17_GPIO_CLK|FSMC_A18_GPIO_CLK|
+						 FSMC_A12_GPIO_CLK| FSMC_A13_GPIO_CLK| FSMC_A14_GPIO_CLK|
+						 FSMC_A15_GPIO_CLK| FSMC_A16_GPIO_CLK| FSMC_A17_GPIO_CLK|
+						 FSMC_A18_GPIO_CLK|
                          /*数据信号线*/
                          FSMC_D0_GPIO_CLK | FSMC_D1_GPIO_CLK | FSMC_D2_GPIO_CLK | 
                          FSMC_D3_GPIO_CLK | FSMC_D4_GPIO_CLK | FSMC_D5_GPIO_CLK |
@@ -268,9 +269,6 @@ void FSMC_SRAM_Init(void)
 											
 }
 	  		
-
-
-
 /**
   * @brief  以“字”为单位向sdram写入数据 
   * @param  pBuffer: 指向数据的指针 

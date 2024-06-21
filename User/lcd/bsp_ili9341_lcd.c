@@ -85,16 +85,16 @@ static void ILI9341_GPIO_Config ( void )
 
 	/* 使能FSMC对应相应管脚时钟*/
 	RCC_APB2PeriphClockCmd ( 	
-													/*控制信号*/
-													ILI9341_CS_CLK|ILI9341_DC_CLK|ILI9341_WR_CLK|
-													ILI9341_RD_CLK	|ILI9341_BK_CLK|ILI9341_RST_CLK|
-													/*数据信号*/
-													ILI9341_D0_CLK|ILI9341_D1_CLK|	ILI9341_D2_CLK | 
-													ILI9341_D3_CLK | ILI9341_D4_CLK|ILI9341_D5_CLK|
-													ILI9341_D6_CLK | ILI9341_D7_CLK|ILI9341_D8_CLK|
-													ILI9341_D9_CLK | ILI9341_D10_CLK|ILI9341_D11_CLK|
-													ILI9341_D12_CLK | ILI9341_D13_CLK|ILI9341_D14_CLK|
-													ILI9341_D15_CLK	, ENABLE );
+							/*控制信号*/
+							ILI9341_CS_CLK|ILI9341_DC_CLK|ILI9341_WR_CLK|
+							ILI9341_RD_CLK|ILI9341_BK_CLK|ILI9341_RST_CLK|
+							/*数据信号*/
+							ILI9341_D0_CLK | ILI9341_D1_CLK|ILI9341_D2_CLK| 
+							ILI9341_D3_CLK | ILI9341_D4_CLK|ILI9341_D5_CLK|
+							ILI9341_D6_CLK | ILI9341_D7_CLK|ILI9341_D8_CLK|
+							ILI9341_D9_CLK | ILI9341_D10_CLK|ILI9341_D11_CLK|
+							ILI9341_D12_CLK| ILI9341_D13_CLK|ILI9341_D14_CLK|
+							ILI9341_D15_CLK	, ENABLE );
 		
 	
 	/* 配置FSMC相对应的数据线,FSMC-D0~D15 */	
@@ -556,6 +556,3 @@ void ILI9341_GramScan ( uint8_t ucOption )
 }
 
 /*********************end of file*************************/
-
-
-

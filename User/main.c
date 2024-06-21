@@ -210,7 +210,9 @@ static void KeyScan_Task(void *parameter)
 
             break;
         case KEY_3ClICK:
-            _cbKey(dac, 1);
+            if(DACParams.DACFreqGrade++ == DACMAXGRADE)
+                DACParams.DACFreqGrade--;
+            SetDACFreq(_DACgrade[DACParams.DACFreqGrade]);
             break;
 
         case KEY_ERROR:
@@ -239,7 +241,9 @@ static void KeyScan_Task(void *parameter)
             break;
 
          case KEY_3ClICK:
-            _cbKey(dac, 0);
+            if(DACParams.DACFreqGrade-- == 0)
+                DACParams.DACFreqGrade++;
+            SetDACFreq(_DACgrade[DACParams.DACFreqGrade]);
 
             break;
 
@@ -285,6 +289,7 @@ static void GUI_Task(void *parameter)
     while (1)
     {
         MainTask();
+        vTaskDelay(10000);
     }
 }
 
@@ -298,18 +303,18 @@ static void CPU_Task(void *parameter)
 
         vTaskList((char *)&CPU_RunInfo); //获取任务运行时间信息
 
-        printf("---------------------------------------------\r\n");
-        printf("任务名      任务状态 优先级   剩余栈 任务序号\r\n");
+        printf("--------------------------------------------------------------------------------------\r\n");
+        printf("任务名                          任务状态         优先级            剩余栈       任务序号\r\n");
         printf("%s", CPU_RunInfo);
-        printf("---------------------------------------------\r\n");
+        printf("--------------------------------------------------------------------------------------\r\n");
 
         memset(CPU_RunInfo, 0, 400); //信息缓冲区清零
 
         vTaskGetRunTimeStats((char *)&CPU_RunInfo);
-
-        printf("任务名       运行计数         利用率\r\n");
+		printf("--------------------------------------------------------------------------------------\r\n");
+        printf("任务名                          运行计数                                 利用率\r\n");
         printf("%s", CPU_RunInfo);
-        printf("---------------------------------------------\r\n\n");
+        printf("--------------------------------------------------------------------------------------\r\n");
         vTaskDelay(20000); /* 延时500个tick */
     }
 }
@@ -351,7 +356,6 @@ static void BSP_Init(void)
 
     /* 触摸屏初始化 */
     XPT2046_Init();
-
     BASIC_TIM_Init();
 }
 

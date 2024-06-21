@@ -5,8 +5,6 @@ __IO uint16_t ADC_ConvertedValue[ADC_DataSize];
 
 
 
-
-
 /**
   * @brief  ADC GPIO 初始化
   * @param  无
@@ -43,7 +41,7 @@ static void TIM3_Config(void)
     /* TIM3基本定时器配置 */
     // TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period = (12 - 1);              //定时周期 72 /12 =6
-    TIM_TimeBaseStructure.TIM_Prescaler = (6-1);     //预分频 72M / 6 = 1M
+    TIM_TimeBaseStructure.TIM_Prescaler = (6-1);     	//预分频 72M / 6 = 1M
     TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;              //时钟分频系数
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);

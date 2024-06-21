@@ -31,7 +31,6 @@ Purpose     : Example demonstrating DIALOG and widgets
 #include "DSO.h"
 #include "MainTask.h"
 #include "./bsp_adc.h"
-#include "./dac/bsp_dac.h"
 
 // debug
 char chInput[512];
@@ -55,7 +54,6 @@ char chInput[512];
 #define ID_RightText_tbase          (GUI_ID_USER + 0x11)
 
 #define ID_BUTTON_MODE_SWITCH       (GUI_ID_USER + 0x20)
-#define ID_BUTTON_STOP_WAVE         (GUI_ID_USER + 0x21)
 
 
 
@@ -120,6 +118,8 @@ char BottomTextInfo[][15] =
 static TEXTSTRUCT UpText[UPTEXT_MAXNUMS] = { 0 };                   /* 在后面初始化 */
 char UpTextInfo[][12] =
 {
+    "T'D",
+    "TBD",
     "200kSa/s",
 };
 // 上方文本框定义  ----------------------
@@ -142,23 +142,6 @@ static GRAPHPREWIN_STRUCT GraphPreWin =                  /*波形预览初始化*/
 };
 // 上方波形预览条定义 --------------------
 
-// DAC文本框定义  **********************
-static char DACTextInfo [10] = {"1000Hz"};  
-static TEXTSTRUCT DACText = 
-{
-    0, NULL, DACTextInfo, 
-    {
-        .x0 = 260,
-        .y0 = 220,
-        .xsize = 60,
-        .ysize = 20,
-    },
-    0,
-    0,
-    0 
-};        
-// DAC文本框定义  ----------------------
-
 
 // 定时器handle
 static WM_HTIMER hTimer = -1;
@@ -169,12 +152,11 @@ static WM_HTIMER hTimer = -1;
 *
 ********************************************************************
 */
-
-
 /*********************************************************************
 *
 *       _cbDACWin
 */
+
 static void _cbDACWin(WM_MESSAGE* pMsg) {
     WM_HWIN hWin = pMsg->hWin;
     GUI_RECT RECT;
@@ -182,14 +164,9 @@ static void _cbDACWin(WM_MESSAGE* pMsg) {
 
     switch (pMsg->MsgId) {
     case WM_PAINT:
-        GUI_SetColor(GUI_RED);
-        GUI_FillRoundedRect(2, 2, 56, 18, 2);
-
-        GUI_SetFont(GUI_FONT_13B_1);
-        GUI_SetBkColor(GUI_RED);
+        GUI_SetBkColor(GUI_BLACK);
         GUI_SetColor(GUI_WHITE);
-        sprintf(DACText.sinfo, "%dHz", _DACgrade[DACParams.DACFreqGrade]);
-        GUI_DispStringHCenterAt(DACText.sinfo, 30, 3);
+        GUI_DispDecAt(_DACgrade[DACParams.DACFreqGrade], 0, 0, 6);
 
         break;
     default:
@@ -286,6 +263,15 @@ static void _cbUpText(WM_MESSAGE* pMsg) {
         //GUI_DispDecAt(pMsg->hWin, 0, 0, 5);
         switch (up_textx)
         {
+        case status:
+            GUI_SetColor(GUI_YELLOW);
+            GUI_FillRoundedRect(0, 0, UPTEXT_L_XSIZE, UPTEXT_YSIZE, 2);
+
+            GUI_SetBkColor(GUI_YELLOW);
+            GUI_SetColor(GUI_BLACK);
+            GUI_DispStringHCenterAt(UpText[up_textx].sinfo, UPTEXT_L_XSIZE / 2, 0);
+            break;
+
         case sps:
             GUI_SetColor(GUI_YELLOW);
             GUI_FillRoundedRect(0, 0, UPTEXT_R_XSIZE, UPTEXT_YSIZE, 2);
@@ -295,6 +281,14 @@ static void _cbUpText(WM_MESSAGE* pMsg) {
             GUI_DispStringHCenterAt(UpText[up_textx].sinfo, UPTEXT_R_XSIZE / 2 + 1, 0);
             break;
 
+        case upTBD:
+            GUI_SetColor(GUI_GREEN);
+            GUI_FillRoundedRect(0, 0, UPTEXT_L_XSIZE, UPTEXT_YSIZE, 2);
+
+            GUI_SetBkColor(GUI_GREEN);
+            GUI_SetColor(GUI_BLACK);
+            GUI_DispStringHCenterAt(UpText[up_textx].sinfo, UPTEXT_L_XSIZE / 2 + 1, 0);
+            break;
         default:
             break;
         }
@@ -421,12 +415,12 @@ static void _cbRightText(WM_MESSAGE* pMsg) {
         case tbase:
             if (DSOParams.TimeBaseGrade < 5) 
             {
-                sprintf(RightTextInfo[tbase], "%.1fus", (float)thistimebase * 5 / DSOShowParams.XExpan);
+                sprintf(RightTextInfo[tbase], "%dus", thistimebase * 5);
                 sprintf(RightTextInfo[xpos], "%dus", DSOParams.XPos * 5);
             }   
             else
             {
-                sprintf(RightTextInfo[tbase], "%.1fms", (float)thistimebase * 5 / 1000 / DSOShowParams.XExpan);
+                sprintf(RightTextInfo[tbase], "%dms", thistimebase * 5 / 1000);
                 sprintf(RightTextInfo[xpos], "%.2fms", (float)(DSOParams.XPos) * 5 / 1000);
             }
             break;
@@ -616,7 +610,7 @@ static void _cbBkWindow(WM_MESSAGE* pMsg) {
 
         GUI_SetBkColor(GUI_BLACK);
         GUI_SetColor(GUI_WHITE);
-
+        GUI_DispDecAt(_DACgrade[DACParams.DACFreqGrade], 20, 40, 6);
 
         break;
 
@@ -641,29 +635,14 @@ static void _cbBkWindow(WM_MESSAGE* pMsg) {
                 hButton = pMsg->hWinSrc;
                 if(DSOShowParams.ShowMode == SHOW_FFT)
                 {
-                    BUTTON_SetText(hButton, "->FFT");
+                    BUTTON_SetText(hButton, "FFT");
                     DSOShowParams.ShowMode = SHOW_WAVE;
                 }
                 else
                 {
-                    BUTTON_SetText(hButton, "->WAVE");
+                    BUTTON_SetText(hButton, "WAVE");
                     DSOShowParams.ShowMode = SHOW_FFT;
                 }
-                break;
-            case ID_BUTTON_STOP_WAVE:
-                hButton = pMsg->hWinSrc;
-                if(DSOParams.StopFlag == DSO_RUN)
-                {
-                    BUTTON_SetText(hButton, "->T'D");
-                    DSOParams.StopFlag = DSO_STOP;
-                }
-                else
-                {
-                    BUTTON_SetText(hButton, "->STOP");
-                    DSOParams.StopFlag = DSO_RUN;                  
-                }
-                
-
                 break;
             default:
                 break;    
@@ -713,13 +692,9 @@ void CreateAllWigets(void)
 
     hWin = TEXT_CreateEx(260, 220, 60, 20, WM_HBKWIN, WM_CF_SHOW, 0, 0, NULL);
     WM_SetCallback(hWin, _cbDACWin);
-    DACText.Handle = hWin;
 
-    hWin = BUTTON_CreateEx(262, 2, 56, 18, WM_HBKWIN, WM_CF_SHOW, 0, ID_BUTTON_MODE_SWITCH);
-    BUTTON_SetText(hWin, "->FFT");
-
-    hWin = BUTTON_CreateEx(10, 2, 58, 16, WM_HBKWIN, WM_CF_SHOW, 0, ID_BUTTON_STOP_WAVE);
-    BUTTON_SetText(hWin, "->STOP");
+    hWin = BUTTON_CreateEx(260, 0, 60, 20, WM_HBKWIN, WM_CF_SHOW, 0, ID_BUTTON_MODE_SWITCH);
+    BUTTON_SetText(hWin, "FFT");
 
 }
 
@@ -759,10 +734,16 @@ static void MY_Init(void)
     //上面两个文本初始化
     for (i = 0; i < UPTEXT_MAXNUMS; i++)
     {
-        
-        UpText[i].Text.x0 = 259 - UPTEXT_R_XSIZE;
-        UpText[i].Text.xsize = UPTEXT_R_XSIZE;
-        
+        if (i != 2)
+        {
+            UpText[i].Text.x0 = 10 + (UPTEXT_L_XSIZE + 2) * i;
+            UpText[i].Text.xsize = UPTEXT_L_XSIZE;
+        }
+        else
+        {
+            UpText[i].Text.x0 = 259 - UPTEXT_R_XSIZE;
+            UpText[i].Text.xsize = UPTEXT_R_XSIZE;
+        }
 
 
         UpText[i].CornerSize = 0;
@@ -785,11 +766,10 @@ static void MY_Init(void)
 static void CopyToShowBuffer(void)
 {
     int i, j, k;
-    int sp = DSOShowParams.XExpan;
-
+    
     if(DSOShowParams.ShowMode == SHOW_WAVE)
     {
-        
+        int sp = DSOShowParams.XExpan;
         for (i = 0, j = DSOShowParams.ShowStartPos; i < SHOW_BUFF_SIZE; i += sp, j++)
         {
             for(k = 0; (k < sp) && ((i + k) < SHOW_BUFF_SIZE); k++)
@@ -801,6 +781,7 @@ static void CopyToShowBuffer(void)
     }   
     else
     {
+        int sp = 5;
         for (i = 0, j = 0; i < SHOW_BUFF_SIZE; i += sp, j++)
         {
             for(k = 0; (k < sp) && ((i + k) < SHOW_BUFF_SIZE); k++)
@@ -827,6 +808,7 @@ static void CopyToShowBuffer(void)
 
 
 void MainTask(void) { 
+    
     MY_Init();                              //初始化结构体
 
     WM_SetCreateFlags(WM_CF_MEMDEV);        //设置使用内存设备标志，让bkwindown也使用
@@ -836,35 +818,22 @@ void MainTask(void) {
     //创建全部的控件
     CreateAllWigets();
 
-
-    SetDACFreq(_DACgrade[DAC_DEFAULT_GRADE]);
-    DACParams.DACFreqGrade = DAC_DEFAULT_GRADE;
-    WM_InvalidateWindow(DACText.Handle);
-
-    SetADCSampleRate(_tgrade[SPS_DEFAULT_GRADE].SPS);
-    DSOParams.TimeBaseGrade = SPS_DEFAULT_GRADE;
-    WM_InvalidateWindow(UpText[sps].Handle);
-    WM_InvalidateWindow(RightText[tbase].Handle);
-    
-
     hTimer = WM_CreateTimer(RightText[channel].Handle, channel, 1000, 0);   //创建定时器
     RightText[channel].TimerFlag = 2;
     while (1) {
-        if(DSOParams.StopFlag == DSO_RUN)
-        {
-            CopyDataToWaveBuff();    
-            FFT_GetFreq(_tgrade[DSOParams.TimeBaseGrade].SPS);                   
-        }
-        
+
+        CopyDataToWaveBuff();                       //从adc采集的数组复制到showbuff
         CalShowStartPos();
         CopyToShowBuffer();
-        
+
+        FFT_GetFreq(_tgrade[DSOParams.TimeBaseGrade].SPS);
 
         WM_InvalidateRect(WM_HBKWIN, &GraphRect);   //刷新波形
         WM_InvalidateWindow(GraphPreWin.Handle);
         WM_InvalidateWindow(BottomText[vpp].Handle);
+        WM_InvalidateWindow(BottomText[freq].Handle);
 
-        GUI_Delay(50); 
+        GUI_Delay(100);                             
 
     }
 }
@@ -882,6 +851,7 @@ I16 GetTextHandle(I8 Position, I8 Index)
     
     case U:
         return UpText[Index].Handle;
+
     
     default:
         break;
@@ -1000,33 +970,15 @@ void _cbKey(I8 Index, I8 Direction)
     case mode:
         if(Direction)
         {
-            if (++DSOShowParams.XExpan > 10)
-                DSOShowParams.XExpan--;
+            if (++DSOShowParams.XExpan > 5)
+                DSOParams.VoltageBaseGrade--;
         }
         else
         {
-            if (--DSOShowParams.XExpan < 1)
-                DSOShowParams.XExpan++;
+            if (--DSOShowParams.XExpan < 0)
+                DSOParams.VoltageBaseGrade++;
         }
         WM_InvalidateWindow(RightText[mode].Handle);
-        WM_InvalidateWindow(RightText[tbase].Handle);
-        break;
-
-    case dac:
-        if(Direction)
-        {
-            if(DACParams.DACFreqGrade++ == DACMAXGRADE)
-                DACParams.DACFreqGrade--;
-            SetDACFreq(_DACgrade[DACParams.DACFreqGrade]);
-        }
-        else
-        {
-            if(DACParams.DACFreqGrade-- == 0)
-                DACParams.DACFreqGrade++;
-            SetDACFreq(_DACgrade[DACParams.DACFreqGrade]);
-        }
-        WM_InvalidateWindow(DACText.Handle);
-        
         break;
     default:
         break;

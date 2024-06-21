@@ -25,6 +25,9 @@ static void                   XPT2046_DelayUS                       ( __IO uint3
 static void                   XPT2046_WriteCMD                      ( uint8_t ucCmd );
 static uint16_t               XPT2046_ReadCMD                       ( void );
 
+#define SAMP_CNT 4
+#define SAMP_CNT_DIV2 2
+
 /**
   * @brief  XPT2046 初始化函数
   * @param  无
@@ -35,7 +38,6 @@ void XPT2046_Init ( void )
 
   GPIO_InitTypeDef  GPIO_InitStructure = {0};
 	
-
   /* 开启GPIO时钟 */
   RCC_APB2PeriphClockCmd ( XPT2046_SPI_GPIO_CLK|XPT2046_PENIRQ_GPIO_CLK, ENABLE );
 
@@ -147,8 +149,7 @@ static uint16_t XPT2046_ReadCMD ( void )
 	return usBuf;
 }
 
-#define SAMP_CNT 4
-#define SAMP_CNT_DIV2 2
+
 /*
 *********************************************************************************************************
 *	函 数 名: XPT2046_ReadAdc_Fliter
