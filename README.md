@@ -18,7 +18,7 @@
 
 测得另一个单片产生的PWM波
 
-<img src="G:\github\stm32\示波器\rewrite\stm32F1-simple_oscillograph_rewrite\运行截图.jpg" alt="运行截图" style="zoom:33%;" />
+<img src="https://github.com/PackageInstaller/STM32F103ZET6-simple_oscillograph/blob/master/%E8%BF%90%E8%A1%8C%E6%88%AA%E5%9B%BE.jpg" alt="运行截图" style="zoom:33%;" />
 
 ## 功能总览
 > 1. 界面完全更新
